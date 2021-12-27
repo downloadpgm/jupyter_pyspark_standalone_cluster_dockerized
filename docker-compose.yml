@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  spk_mst:
+    image: mkenjis/ubpyspk_img
+    volumes:
+      - type: bind
+        source: /root/.ssh
+        target: /root/.ssh
+    environment:
+      - SPARK_HOST_SLAVES=spk_wkr1,spk_wkr2,spk_wkr3
+    ports:
+      - 8082:8082
+    networks:
+      - mynet
+    depends_on:
+      - spk_wkr1,spk_wkr2,spk_wkr3
+  spk_wkr1:
+    image: mkenjis/ubpyspk_img
+    volumes:
+      - type: bind
+        source: /root/.ssh
+        target: /root/.ssh
+    networks:
+      - mynet
+  spk_wkr2:
+    image: mkenjis/ubpyspk_img
+    volumes:
+      - type: bind
+        source: /root/.ssh
+        target: /root/.ssh
+    networks:
+      - mynet
+  spk_wkr3:
+    image: mkenjis/ubpyspk_img
+    volumes:
+      - type: bind
+        source: /root/.ssh
+        target: /root/.ssh
+    networks:
+      - mynet
+  hadoop:
+    image: mkenjis/ubhdp_img
+    networks:
+      - mynet
+      
+networks:
+  mynet:
