@@ -99,14 +99,14 @@ Edit /root/.jupyter/jupyter_notebook_config.py
 $ vi /root/.jupyter/jupyter_notebook_config.py
 c.NotebookApp.ip = '*'
 c.NotebookApp.open_browser = False
-c.NotebookApp.port = 8888
+c.NotebookApp.port = 8082
 ```
 
 Setup a jupyter password
 ```shell
 $ jupyter notebook password
-Enter password:  ****
-Verify password: ****
+Enter password:  *********
+Verify password: *********
 ```
 
 Run pyspark
