@@ -120,7 +120,7 @@ Provide the credentials previously created
 
 ![JUPYTER home](docs/jupyter-login.png)
 
-Click on right upper corner and choose Python3 as interpreter
+Click on New button to start a new notebook. Choose Python3 as interpreter
 
 ![JUPYTER home](docs/jupyter-python-notebook.png)
 
