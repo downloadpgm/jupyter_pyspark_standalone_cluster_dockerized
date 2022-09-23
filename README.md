@@ -6,7 +6,7 @@ In this demo, a Spark container uses a Spark Standalone cluster as a resource ma
 
 This Docker image contains Spark binaries prebuilt and uploaded in Docker Hub.
 
-## Build Jupyter Spark image
+## Build Jupyter/Spark image
 ```shell
 $ git clone https://github.com/mkenjis/apache_binaries
 $ wget https://archive.apache.org/dist/spark/spark-3.0.3/spark-3.0.3-bin-hadoop2.7.tgz
@@ -87,7 +87,7 @@ Verify password: *********
 PYSPARK_DRIVER_PYTHON_OPTS="notebook --no-browser --allow-root --port=8082" pyspark --master spark://<hostname>:7077
 ```
 
-In the browser, issue the address https://host:8082 to access the Jupyter Notebook.
+9. in the browser, issue the address https://host:8082 to access the Jupyter Notebook.
 
 Provide the credentials previously created
 
