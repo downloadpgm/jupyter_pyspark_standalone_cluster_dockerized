@@ -6,20 +6,12 @@ In this demo, a Spark container uses a Spark Standalone cluster as a resource ma
 
 This Docker image contains Spark binaries prebuilt and uploaded in Docker Hub.
 
-## Steps to Build Spark image
+## Build Jupyter Spark image
 ```shell
 $ git clone https://github.com/mkenjis/apache_binaries
 $ wget https://archive.apache.org/dist/spark/spark-3.0.3/spark-3.0.3-bin-hadoop2.7.tgz
 $ docker image build -t mkenjis/ubpyspk_img
-$ docker login
-Login with your Docker ID to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com to create one.
-Username: mkenjis
-Password: 
-WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
-Configure a credential helper to remove this warning. See
-https://docs.docker.com/engine/reference/commandline/login/#credentials-store
-
-Login Succeeded
+$ docker login   # provide user and password
 $ docker image push mkenjis/ubpyspk_img
 ```
 
@@ -36,39 +28,22 @@ Sets up the environment for Spark client by executing the following steps :
 Creates the following Hadoop files on $SPARK_HOME/conf directory :
 - spark-env.sh
 
-## Initial Steps on Docker Swarm
+## Start Swarm cluster
 
-To start with, start Swarm mode in Docker in node1
+1. start swarm mode in node1
 ```shell
-$ docker swarm init
-Swarm initialized: current node (xv7mhbt8ncn6i9iwhy8ysemik) is now a manager.
-
-To add a worker to this swarm, run the following command:
-
-    docker swarm join --token <token> <IP node1>:2377
-
-To add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.
+$ docker swarm init --advertise-addr <IP node1>
+$ docker swarm join-token manager  # issue a token to add a node as manager to swarm
 ```
 
-Add more workers in cluster hosts (node2, node3, ...) by joining them to manager.
+2. add more managers in swarm cluster (node2, node3, ...)
 ```shell
-$ docker swarm join --token <token> <IP node1>:2377
+$ docker swarm join --token <token> <IP nodeN>:2377
 ```
 
-Change the workers as managers in node2, node3, ...
-```shell
-$ docker node promote node2
-$ docker node promote node3
-$ docker node promote ...
-```
-
-Start Docker stack using docker-compose.yml
+3. start a spark standalone cluster and spark client
 ```shell
 $ docker stack deploy -c docker-compose.yml spark
-```
-
-Check the status of each service started
-```shell
 $ docker service ls
 ID             NAME             MODE         REPLICAS   IMAGE                             PORTS
 t3s7ud9u21hr   spark_spk_mst    replicated   1/1        mkenjis/ubpyspk_img:latest   
@@ -77,24 +52,22 @@ xlg5ww9q0v6j   spark_spk_wkr2   replicated   1/1        mkenjis/ubpyspk_img:late
 ni5xrb60u71i   spark_spk_wkr3   replicated   1/1        mkenjis/ubpyspk_img:latest
 ```
 
-## Running Spark shell in Spark Docker container
-
-Identify which Docker container started as Spark master and logged into it
+4. access spark master node
 ```shell
-$ docker container ls   # run it in each node and check which <container ID> is running the Hadoop master constainer
+$ docker container ls   # run it in each node and check which <container ID> is running the Spark master constainer
 CONTAINER ID   IMAGE                         COMMAND                  CREATED              STATUS              PORTS      NAMES
 71717fcd5a01   mkenjis/ubpyspk_img:latest   "/usr/bin/supervisord"   14 minutes ago   Up 14 minutes   4040/tcp, 7077/tcp, 8080-8082/tcp, 10000/tcp   spark_spk_wkr2.1.bf8tsqv5lyfa4h5i8utwvtpch
 464730a41833   mkenjis/ubpyspk_img:latest   "/usr/bin/supervisord"   14 minutes ago   Up 14 minutes   4040/tcp, 7077/tcp, 8080-8082/tcp, 10000/tcp   spark_spk_mst.1.n01a49esutmbgv5uum3tdsm6p
 
-$ docker container exec -it <container ID> bash
+$ docker container exec -it <spk_mst ID> bash
 ```
 
-Run jupyter notebook --generate-config
+5. run jupyter notebook --generate-config
 ```shell
 $ jupyter notebook --generate-config
 ```
 
-Edit /root/.jupyter/jupyter_notebook_config.py
+6. edit /root/.jupyter/jupyter_notebook_config.py
 ```shell
 $ vi /root/.jupyter/jupyter_notebook_config.py
 c.NotebookApp.ip = '*'
@@ -102,14 +75,14 @@ c.NotebookApp.open_browser = False
 c.NotebookApp.port = 8082
 ```
 
-Setup a jupyter password
+7. setup a jupyter password
 ```shell
 $ jupyter notebook password
 Enter password:  *********
 Verify password: *********
 ```
 
-Run pyspark
+8. run pyspark
 ```shell
 PYSPARK_DRIVER_PYTHON_OPTS="notebook --no-browser --allow-root --port=8082" pyspark --master spark://<hostname>:7077
 ```
