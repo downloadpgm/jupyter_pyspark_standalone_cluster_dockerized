@@ -33,26 +33,44 @@ Creates the following Hadoop files on $SPARK_HOME/conf directory :
 1. start swarm mode in node1
 ```shell
 $ docker swarm init --advertise-addr <IP node1>
-$ docker swarm join-token manager  # issue a token to add a node as manager to swarm
+$ docker swarm join-token worker  # issue a token to add a node as worker to swarm
 ```
 
-2. add more managers in swarm cluster (node2, node3, ...)
+2. add 3 more workers in swarm cluster (node2, node3, node4)
 ```shell
-$ docker swarm join --token <token> <IP nodeN>:2377
+$ docker swarm join --token <token> <IP node1>:2377
 ```
 
-3. start a spark standalone cluster and spark client
+3. label each node to anchor each container in swarm cluster
 ```shell
-$ docker stack deploy -c docker-compose.yml spark
+docker node update --label-add hostlabel=hdpmst node1
+docker node update --label-add hostlabel=hdp1 node2
+docker node update --label-add hostlabel=hdp2 node3
+docker node update --label-add hostlabel=hdp3 node4
+```
+
+4. create an external "overlay" network in swarm to link the 2 stacks (hdp and spk)
+```shell
+docker network create --driver overlay mynet
+```
+
+5. start the Hadoop cluster (with HDFS and YARN)
+```shell
+$ docker stack deploy -c docker-compose-hdp.yml hdp
+```
+
+6. start a spark standalone cluster and spark client
+```shell
+$ docker stack deploy -c docker-compose.yml spk
 $ docker service ls
-ID             NAME             MODE         REPLICAS   IMAGE                             PORTS
-t3s7ud9u21hr   spark_spk_mst    replicated   1/1        mkenjis/ubpyspk_img:latest   
-mi3w7xvf9vyt   spark_spk_wkr1   replicated   1/1        mkenjis/ubpyspk_img:latest   
-xlg5ww9q0v6j   spark_spk_wkr2   replicated   1/1        mkenjis/ubpyspk_img:latest   
-ni5xrb60u71i   spark_spk_wkr3   replicated   1/1        mkenjis/ubpyspk_img:latest
+ID             NAME           MODE         REPLICAS   IMAGE                             PORTS
+t3s7ud9u21hr   spk_spk_mst    replicated   1/1        mkenjis/ubpyspk_img:latest   
+mi3w7xvf9vyt   spk_spk_wkr1   replicated   1/1        mkenjis/ubpyspk_img:latest   
+xlg5ww9q0v6j   spk_spk_wkr2   replicated   1/1        mkenjis/ubpyspk_img:latest   
+ni5xrb60u71i   spk_spk_wkr3   replicated   1/1        mkenjis/ubpyspk_img:latest
 ```
 
-4. access spark master node
+7. access spark master node
 ```shell
 $ docker container ls   # run it in each node and check which <container ID> is running the Spark master constainer
 CONTAINER ID   IMAGE                         COMMAND                  CREATED              STATUS              PORTS      NAMES
@@ -62,12 +80,12 @@ CONTAINER ID   IMAGE                         COMMAND                  CREATED   
 $ docker container exec -it <spk_mst ID> bash
 ```
 
-5. run jupyter notebook --generate-config
+8. run jupyter notebook --generate-config
 ```shell
 $ jupyter notebook --generate-config
 ```
 
-6. edit /root/.jupyter/jupyter_notebook_config.py
+9. edit /root/.jupyter/jupyter_notebook_config.py
 ```shell
 $ vi /root/.jupyter/jupyter_notebook_config.py
 c.NotebookApp.ip = '*'
@@ -75,19 +93,19 @@ c.NotebookApp.open_browser = False
 c.NotebookApp.port = 8082
 ```
 
-7. setup a jupyter password
+10. setup a jupyter password
 ```shell
 $ jupyter notebook password
 Enter password:  *********
 Verify password: *********
 ```
 
-8. run pyspark
+11. run pyspark
 ```shell
 PYSPARK_DRIVER_PYTHON_OPTS="notebook --no-browser --allow-root --port=8082" pyspark --master spark://<hostname>:7077
 ```
 
-9. in the browser, issue the address https://host:8082 to access the Jupyter Notebook.
+12. in the browser, issue the address https://host:8082 to access the Jupyter Notebook.
 
 Provide the credentials previously created
 

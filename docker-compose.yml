@@ -23,10 +23,8 @@ services:
     image: mkenjis/ubpyspk_img
     networks:
       - mynet
-  hadoop:
-    image: mkenjis/ubhdp_img
-    networks:
-      - mynet
 
 networks:
   mynet:
+    external:
+       name: mynet
