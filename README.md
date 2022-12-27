@@ -70,16 +70,16 @@ $ docker stack deploy -c docker-compose.yml spk
 $ docker service ls
 ID             NAME           MODE         REPLICAS   IMAGE                             PORTS
 t3s7ud9u21hr   spk_spk_mst    replicated   1/1        mkenjis/ubpyspk_img:latest   
-mi3w7xvf9vyt   spk_spk_wkr1   replicated   1/1        mkenjis/ubpyspk_img:latest   
-xlg5ww9q0v6j   spk_spk_wkr2   replicated   1/1        mkenjis/ubpyspk_img:latest   
-ni5xrb60u71i   spk_spk_wkr3   replicated   1/1        mkenjis/ubpyspk_img:latest
+mi3w7xvf9vyt   spk_spk1   replicated   1/1        mkenjis/ubpyspk_img:latest   
+xlg5ww9q0v6j   spk_spk2   replicated   1/1        mkenjis/ubpyspk_img:latest   
+ni5xrb60u71i   spk_spk3   replicated   1/1        mkenjis/ubpyspk_img:latest
 ```
 
 7. access spark master node
 ```shell
 $ docker container ls   # run it in each node and check which <container ID> is running the Spark master constainer
 CONTAINER ID   IMAGE                         COMMAND                  CREATED              STATUS              PORTS      NAMES
-71717fcd5a01   mkenjis/ubpyspk_img:latest   "/usr/bin/supervisord"   14 minutes ago   Up 14 minutes   4040/tcp, 7077/tcp, 8080-8082/tcp, 10000/tcp   spark_spk_wkr2.1.bf8tsqv5lyfa4h5i8utwvtpch
+71717fcd5a01   mkenjis/ubpyspk_img:latest   "/usr/bin/supervisord"   14 minutes ago   Up 14 minutes   4040/tcp, 7077/tcp, 8080-8082/tcp, 10000/tcp   spark_spk2.1.bf8tsqv5lyfa4h5i8utwvtpch
 464730a41833   mkenjis/ubpyspk_img:latest   "/usr/bin/supervisord"   14 minutes ago   Up 14 minutes   4040/tcp, 7077/tcp, 8080-8082/tcp, 10000/tcp   spark_spk_mst.1.n01a49esutmbgv5uum3tdsm6p
 
 $ docker container exec -it <spk_mst ID> bash

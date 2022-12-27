@@ -4,22 +4,22 @@ services:
   spk_mst:
     image: mkenjis/ubpyspk_img
     environment:
-      - SPARK_HOST_SLAVES=spk_wkr1,spk_wkr2,spk_wkr3
+      - SPARK_HOST_SLAVES=spk1,spk2,spk3
     ports:
       - 8082:8082
     networks:
       - mynet
     depends_on:
-      - spk_wkr1,spk_wkr2,spk_wkr3
-  spk_wkr1:
+      - spk1,spk2,spk3
+  spk1:
     image: mkenjis/ubpyspk_img
     networks:
       - mynet
-  spk_wkr2:
+  spk2:
     image: mkenjis/ubpyspk_img
     networks:
       - mynet
-  spk_wkr3:
+  spk3:
     image: mkenjis/ubpyspk_img
     networks:
       - mynet
