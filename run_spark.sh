@@ -13,13 +13,35 @@ service ssh start
 
 echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
 ssh-keyscan ${HOSTNAME} >~/.ssh/known_hosts
-ssh-keyscan localhost >>~/.ssh/known_hosts
-ssh-keyscan 0.0.0.0 >>~/.ssh/known_hosts
 
 if [ -n "${SPARK_HOST_SLAVES}" ]; then
 
-   sleep 20
+   # monitor if all spark slaves are available
+   # if so, proceed with spark slaves setup
+   hosts_OK=0
+   while [ ${hosts_OK} -eq 0 ]; do
 
+      result=0
+      for SPARK_HOST in `echo ${SPARK_HOST_SLAVES} | tr ',' ' '`; do
+         ssh -q root@${SPARK_HOST} "echo 2>1" >/dev/null
+         result=$(echo $?)
+         # echo ${result}
+         if [ ${result} -ne 0 ]; then
+            echo ${SPARK_HOST} 'not available'
+            sleep 2
+            break
+         fi
+      done
+
+      if [ ${result} -eq 0 ]; then
+         hosts_OK=1
+      else
+         hosts_OK=0
+      fi
+
+   done
+   # sleep 20
+   
    >${SPARK_HOME}/conf/slaves
 
    for SPARK_HOST in `echo ${SPARK_HOST_SLAVES} | tr ',' ' '`; do

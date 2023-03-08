@@ -1,7 +1,7 @@
 FROM mkenjis/ubjava_img
 
-ARG DEBIAN_FRONTEND=noninteractive
-ENV TZ=US/Central
+#ARG DEBIAN_FRONTEND=noninteractive
+#ENV TZ=US/Central
 
 RUN apt-get update && apt-get install -y jupyter
 
