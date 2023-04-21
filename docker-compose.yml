@@ -7,6 +7,8 @@ services:
       - SPARK_HOST_SLAVES=spk1,spk2,spk3
     ports:
       - 8082:8082
+      - 4040:4040
+      - 8080:8080
     networks:
       - mynet
     depends_on:
